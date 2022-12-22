@@ -1,0 +1,540 @@
+python-pygraphviz (1.7-3) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster:
+    + Build-Depends: Drop versioned constraint on python3-mock.
+    + python3-pygraphviz: Drop versioned constraint on graphviz in Depends.
+
+  [ Sandro Tosi ]
+  * debian/watch
+    - fix again upstream version detection
+  * remove -dbg package; Closes: #994363
+
+ -- Sandro Tosi <morph@debian.org>  Thu, 30 Sep 2021 19:42:50 -0400
+
+python-pygraphviz (1.7-2) unstable; urgency=medium
+
+  * debian/watch
+    - fix upstream version detection
+
+ -- Sandro Tosi <morph@debian.org>  Mon, 15 Feb 2021 19:05:44 -0500
+
+python-pygraphviz (1.7-1) unstable; urgency=medium
+
+  * New upstream release
+  * Use the new Debian Python Team contact name and address
+  * debian/watch
+    - track releases on github
+  * debian/copyright
+    - update upstream copyright years
+    - extend packaging copyright years
+  * debian/patches/dont_install_data.patch
+    - refresh patch
+  * debian/control
+    - add sphinx-rtd-theme, sphinx-gallery, numpydoc to b-d, needed by doc
+    - bump Standards-Version to 4.5.1 (no changes needed)
+    - bump dh compat to 13
+  * run tests via pytest
+  * debian/rules
+    - set hardening flags
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 13 Feb 2021 00:57:52 -0500
+
+python-pygraphviz (1.6-1) unstable; urgency=low
+
+  [ Debian Janitor ]
+  * Trim trailing whitespace.
+  * Bump debhelper from old 10 to 12.
+  * Set upstream metadata fields: Bug-Database, Bug-Submit, Repository,
+    Repository-Browse.
+
+  [ Ondřej Nový ]
+  * d/control: Update Vcs-* fields with new Debian Python Team Salsa
+    layout.
+
+  [ Sandro Tosi ]
+  * New upstream release
+  * debian/copyright
+    - update upstream copyright notice
+    - extent packaging copyright years
+
+ -- Sandro Tosi <morph@debian.org>  Wed, 07 Oct 2020 23:41:43 -0400
+
+python-pygraphviz (1.5-4) unstable; urgency=medium
+
+  * debian/rules
+    - cleaner file by exporting PYBUILD_NAME instead of overwriting
+      dh_auto_install
+
+ -- Sandro Tosi <morph@debian.org>  Mon, 13 Jan 2020 13:05:01 -0500
+
+python-pygraphviz (1.5-3) unstable; urgency=medium
+
+  * debian/rules
+    - properly install module files in the binary packages; patch by Anton
+      Gladky; Closes: #948713
+
+ -- Sandro Tosi <morph@debian.org>  Sun, 12 Jan 2020 21:01:07 -0500
+
+python-pygraphviz (1.5-2) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * d/changelog: Remove trailing whitespaces.
+  * Use debhelper-compat instead of debian/compat.
+
+  [ Sandro Tosi ]
+  * Drop python2 support; Closes: #938068
+
+ -- Sandro Tosi <morph@debian.org>  Thu, 09 Jan 2020 19:06:49 -0500
+
+python-pygraphviz (1.5-1) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * d/control: Set Vcs-* to salsa.debian.org
+  * d/control: Deprecating priority extra as per policy 4.0.1
+  * d/watch: Use https protocol
+  * Convert git repository from git-dpm to gbp layout
+
+  [ Sandro Tosi ]
+  * New upstream release; Closes: #914378
+  * debian/copyright
+    - extend packaging copyright years
+    - update upstream copyright years
+  * debian/control
+    - bump Standards-Version to 4.2.1 (no changes needed)
+  * debian/{control,rules}
+    - build with py3k sphinx
+
+ -- Sandro Tosi <morph@debian.org>  Fri, 23 Nov 2018 12:42:16 -0500
+
+python-pygraphviz (1.4~rc1-1) unstable; urgency=medium
+
+  * New upstream release candidate
+  * Acknowledge NMU, thanks!! Closes: #840845
+  * debian/copyright
+    - extend packaging copyright years
+  * debian/control
+    - add mock to b-d, needed by tests
+    - remove X-P-V fields, no longer needed
+  * compat level 10
+  * debian/rules
+    - remove doc/build in clean target, this allows the package to be built
+      twice in a row; Closes: #825922
+    - make tests errors fail the build; Closes: #842539
+
+ -- Sandro Tosi <morph@debian.org>  Sun, 08 Jan 2017 15:03:20 -0500
+
+python-pygraphviz (1.3.1-1.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * Remove “set -e; \” line in the dh_auto_test override, which was commented
+    out already. Test results are ignored entirely anyway. This fixes the
+    FTBFS with /bin/sh as bash, thanks to Chris Lamb (Closes: #840845).
+
+ -- Cyril Brulebois <kibi@debian.org>  Sun, 30 Oct 2016 03:09:42 +0100
+
+python-pygraphviz (1.3.1-1) unstable; urgency=medium
+
+  [ Sandro Tosi ]
+  * New upstream release; Closes: #794444, #819739
+  * debian/copyright
+    - extend upstream copyright years
+    - extend packaging copyright years
+    - convert to DEP-5 format
+    - add files from new upstream release
+  * debian/rules
+    - don't install README.*, not very informative
+    - print for which python flavour we're running the tests
+    - increase test verbosity
+    - dont fail the build it tests fail
+  * debian/control
+    - update Homepage field
+    - bump Standards-Version to 3.9.8 (no changes needed)
+
+  [ Ondřej Nový ]
+  * Fixed VCS URL (https)
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 23 Apr 2016 00:32:03 +0100
+
+python-pygraphviz (1.3~rc2-3) unstable; urgency=medium
+
+  * debian/control
+    - suggests the -doc package
+
+ -- Sandro Tosi <morph@debian.org>  Mon, 29 Jun 2015 07:49:16 -0400
+
+python-pygraphviz (1.3~rc2-2) experimental; urgency=medium
+
+  * debian/{control, rules}
+    - provide py3k packages
+  * debian/watch
+    - use PyPI redirector
+  * debian/{control, docs, rules}
+    - build documentation and provide a -doc package
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 14 Feb 2015 17:43:59 +0000
+
+python-pygraphviz (1.3~rc2-1) unstable; urgency=medium
+
+  * New upstream release candidate
+  * debian/patches/{2e27964ce86e8f49c496e5a549237ff6b1763e9a*.patch,
+                    ignore-decoding.patch}
+    - removed, merged upstream
+  * debian/rules
+    - run unittests at build time
+  * debian/patches/dont-import-tests.patch
+    - removed, no longer needed
+  * debian/control
+    - add python-nose to b-d, needed to run unittests
+
+ -- Sandro Tosi <morph@debian.org>  Sun, 02 Nov 2014 20:29:23 +0000
+
+python-pygraphviz (1.3~rc1-1) unstable; urgency=medium
+
+  * New upstream release candidate
+  * Switch from CDBS + pysupport to dh sequencer and dh_python2; Closes: #759709
+  * debian/patches/*
+    - don't install data from setup.py, use dh_installexamples instead
+  * debian/control
+    - remove useless Provides
+    - fix typo in long description for -dbg package
+    - switch me to Maintainer (team to Uploaders)
+    - add graphviz to b-d, needed to run tests
+    - bump Standards-Version to 3.9.6 (no changes needed)
+  * debian/README.source
+    - removed, no longer needed
+  * Bump debhelper compat version to 9
+  * debian/copyright
+    - extend packaging and upstream copyright years
+  * debian/patches/ignore-decoding.patch
+    - remove locale & decoding in libgraphviz identification process
+  * debian/patches/dont-import-tests.patch
+    - disable load of tests submodule
+
+ -- Sandro Tosi <morph@debian.org>  Fri, 10 Oct 2014 19:42:17 +0100
+
+python-pygraphviz (1.2-1) unstable; urgency=low
+
+  [ Jakub Wilk ]
+  * Use canonical URIs for Vcs-* fields.
+
+  [ Sandro Tosi ]
+  * New upstream release
+  * debian/watch
+    - updated for new upstream tarballs location
+  * debian/copyright
+    - update upstream copyright years and author email
+    - extended packaging copyright years
+  * debian/control
+    - bump Standards-Version to 3.9.4 (no changes needed)
+
+ -- Sandro Tosi <morph@debian.org>  Mon, 05 Aug 2013 23:36:04 +0200
+
+python-pygraphviz (1.1-2) unstable; urgency=low
+
+  * debian/rules
+    - remove leftover from build process, so the package can be built twice in a
+      row; thanks to Jakub Wilk for the report; Closes: #671253
+
+ -- Sandro Tosi <morph@debian.org>  Sun, 06 May 2012 17:20:23 +0200
+
+python-pygraphviz (1.1-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/patches/20_doc_install_path, debian/rules
+    - install the documentation in the expected Debian directory, so part of doc
+      installation was semplified in rules
+  * debian/{control, rules}
+    - added python-pygraphviz-dbg package
+  * debian/copyright
+    - extended packaging copyright years
+    - updated upstream copyright years
+  * debian/control
+    - bump Standards-Version to 3.9.2 (no changes needed)
+
+ -- Sandro Tosi <morph@debian.org>  Sun, 16 Oct 2011 14:47:32 +0200
+
+python-pygraphviz (1.0-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/copyright
+    - updated download location
+    - updated upstream copyright years
+  * debian/control
+    - bump Standards-Version to 3.9.1
+      + removed references to BSD licenses from debian/copyright
+  * debian/patches/changeset_r{1131, 1746, 1752}.diff
+    - removed, shipped with upstream tarball
+
+ -- Sandro Tosi <morph@debian.org>  Mon, 02 Aug 2010 23:26:30 +0200
+
+python-pygraphviz (0.99.1-2) unstable; urgency=low
+
+  * debian/{control, source/format, rules}
+    - switch to '3.0 (quilt)' source format
+  * debian/{control, pyversions}
+    - removed pyversions, now using XS-P-V
+  * debian/watch
+    - only report number-only versions
+  * debian/patches/changeset_r{1131, 1746, 1752}.diff
+    - added from upstream svn to support Python 2.6 (no string exceptions and
+      not access to __dict__); Closes: #585317
+
+ -- Sandro Tosi <morph@debian.org>  Thu, 24 Jun 2010 16:37:25 +0200
+
+python-pygraphviz (0.99.1-1) unstable; urgency=low
+
+  * New upstream release; thanks to David Claughton for the report;
+    Closes: #568031
+  * debian/control
+    - take maintainership back under DPMT umbrella; thanks to Cyril Brulebois
+      for his work
+    - adjust Vcs-{Svn, Browser} to point to DPMT location
+    - bump Standards-Version to 3.8.4
+      + added debian/README.source
+  * debian/copyright
+    - update copyright notice for packaging
+  * debian/pycompat
+    - removed, no more needed
+  * debian/pyversions
+    - minimum version set to 2.5
+  * debian/patches/10_ship_examples_miles.dat
+    - updated for new upstream code
+    - added description
+  * debian/patches/20_add_python_shebang
+    - removed, fixed upstream
+
+ -- Sandro Tosi <morph@debian.org>  Mon, 22 Feb 2010 19:17:33 +0100
+
+python-pygraphviz (0.99-3) unstable; urgency=low
+
+  * Avoid installation in /usr/local by adding “--prefix=/usr” through the
+    DEB_PYTHON_INSTALL_ARGS_ALL variable. Many thanks to Piotr Ożarowski
+    for reporting, and to Kumar Appaiah for the patch. Good work on
+    getting python2.6 rocking and rolling! (Closes: #556157).
+  * Fix Homepage field since upstream's website got shuffled around,
+    thanks to Denis Laxalde (Closes: #559059).
+
+ -- Cyril Brulebois <kibi@debian.org>  Sat, 05 Dec 2009 02:25:39 +0100
+
+python-pygraphviz (0.99-2) unstable; urgency=low
+
+  * Upload to unstable now that lenny is released (yay).
+  * Fix FTBFS with python-support 0.90.3: no longer rely on its internal
+    behaviour, and now set tests/test.py executable in the install target
+    (Closes: #517080).
+  * Tidy up debian/rules some more.
+  * Update Vcs-* fields: move from DPMT's svn to collab-maint's git.
+  * Remote DPMT from Uploaders, following Piotr Ożarowski's request.
+  * Add ${misc:Depends} to Depends.
+
+ -- Cyril Brulebois <kibi@debian.org>  Sat, 28 Feb 2009 13:53:32 +0100
+
+python-pygraphviz (0.99-1) experimental; urgency=low
+
+  [ Sandro Tosi ]
+  * debian/control:
+    - Switch Vcs-Browser field to viewsvn.
+
+  [ Cyril Brulebois ]
+  * New upstream release.
+  * debian/docs:
+     - Update for the renamed README.txt file.
+  * debian/rules:
+     - Clean the pygraphviz.egg-info directory in a “clean::” target since
+       it gets generated again during the build, with different contents
+       (which breaks double-build).
+     - Update accordingly (keep shipping it as README).
+     - No longer remove License.txt (no longer shipped).
+     - Remove INSTALL.txt (not needed).
+  * Refresh patch accordingly:
+     - debian/patches/10_ship_examples_miles.dat
+  * Include patch to add a python shebang for scripts missing it:
+     - debian/patches/20_add_python_shebang
+  * debian/control:
+     - Bump Standards-Version from 3.7.3 to 3.8.0 (no changes needed).
+     - Update my mail address.
+  * debian/copyright:
+     - Ditto.
+
+ -- Cyril Brulebois <kibi@debian.org>  Sat, 29 Nov 2008 22:57:14 +0100
+
+python-pygraphviz (0.36-1) unstable; urgency=low
+
+  [ Sandro Tosi ]
+  * debian/control:
+     - Uniformize Vcs-Browser field.
+
+  [ Cyril Brulebois ]
+  * New upstream release.
+  * debian/copyright:
+     - Update copyright years.
+     - Add full licensing terms for doc/examples/miles_dat.txt.gz
+     - Uniformize indentation, add some blank lines to ease reading.
+  * No longer repack:
+     - Not needed, since the license of miles.dat has been sorted out.
+     - Drop README.Debian accordingly.
+     - Drop version mangling in the watch file accordingly.
+     - Drop no longer needed DEB_REAL_UPSTREAM_VERSION variable, and
+       use DEB_UPSTREAM_VERSION instead.
+  * Ship doc/examples/miles.dat.gz:
+     - Add patch to ship it (upstream uses a wildcard on “*.dat” only,
+       adding a wildcard on “*.txt.gz”): 10_ship_examples_miles.dat
+     - Build-Depends: Add quilt accordingly.
+     - debian/rules: Add quilt include accordingly.
+  * Graphviz transition:
+     - Build-Depends: Replace libgraphviz3-dev with libgraphviz-dev
+       (the development package is no longer versioned).
+     - Depends: Bump the versioned dependency from >= 2.12 to >= 2.16.
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Tue, 15 Jan 2008 14:51:25 +0100
+
+python-pygraphviz (0.35.dfsg-2) unstable; urgency=low
+
+  [ Piotr Ożarowski ]
+  * Add Homepage field, delete it from the long description.
+  * Rename XS-Vcs-* fields to Vcs-*.
+  * Add execute bit to test.py file instead of lintian override.
+
+  [ Cyril Brulebois ]
+  * Mention in README.Debian how to obtain miles.dat, as suggested by Kumar
+    Appaiah (Closes: #449547).
+  * Add a TODO about the missing get-orig-source target in debian/rules (in
+    case upstream keeps on shipping miles.dat).
+  * Bump Standards-Version to 3.7.3 (no change needed).
+
+  [ Sandro Tosi ]
+  * debian/watch: Mangle debian version to match upstream version (by
+    stripping the “.dfsg” part).
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Fri, 21 Dec 2007 01:19:09 +0100
+
+python-pygraphviz (0.35.dfsg-1) unstable; urgency=low
+
+  * New upstream release.
+  * Repack since an example is not DFSG-free: freely distributable but no
+    modifications are allowed.
+  * Dropped patches (two backports and a patch included upstream):
+     + 1_SEGV_backported_fix_r590.diff
+     + 2_pkg-config_backported_fix_r605.diff
+     + 3_setup.cfg_rpath.diff
+  * debian/rules:
+     + Commented out the simple-patchsys.mk include accordingly (left there
+       until the next need for patches).
+     + Dropped DEFAULT_PYTHON, which was used when python-support was still
+       unable to handle eggs properly.
+     + Replaced DEB_UPSTREAM_VERSION by DEB_REAL_UPSTREAM_VERSION, so as to
+       handle the '.dfsg' suffix, due to the repack, since cdbs handles
+       DEB_UPSTREAM_VERSION on its own.
+     + Dropped DEB_COMPRESS_EXCLUDE since now pygraphviz can handle compressed
+       data, and since the example file is the one being removed.
+  * debian/watch:
+     + Updated, with the addition pygraphviz/ directory.
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Sat, 28 Jul 2007 11:46:24 +0200
+
+python-pygraphviz (0.34-2) unstable; urgency=high
+
+  * Backported fix (debian/patches/2_pkg-config_backported_fix_r605.diff) from
+    r605 since 0.35 is late. Fixed FTBFS with graphviz 2.12, for which the
+    output of `pkg-config' changed (no more `-L...'), which pygraphviz didn't
+    support (Closes: #423821).
+  * Rebuild against graphviz 2.12 (Closes: #425864).
+  * Urgency set to `high' since 2 RC bugs are addressed.
+  * Build-Depends on libgraphviz3-dev instead of graphviz-dev, and Depends on
+    graphviz (>= 2.12) since now it is no longer automatically added to the
+    Depends, and since commandline tools are used.
+  * Deleted overrides about the rpath, since graphviz no longer uses it.
+  * Deleted debian/TODO since this achieves the transition from graphviz 2.8
+    to 2.12.
+  * Bumped B-D on python-support from 0.5.3 to 0.6.4, since the later is the
+    first one to support an appropriate handling of egg directories.
+  * Added 3_setup.cfg_rpath.diff to handle the removal of the default
+    setup.cfg.
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Tue, 10 Jul 2007 17:21:18 +0200
+
+python-pygraphviz (0.34-1) unstable; urgency=low
+
+  * New upstream release, including:
+     - more tests are available;
+     - use threads and temporary files for multiplatform nonblocking IO;
+     - django example.
+  * Added the Debian Python Modules Team to the Uploaders so that the
+    maintenance of the package is ensured.
+  * Replaced graphviz by ${shlibs:Depends} in the Depends line.
+  * Updated watch file to match the new upstream download area.
+  * debian/rules [mostly patch management]:
+     - added doc relocation, extraneous license deletion, and Readme.txt to
+       README renaming;
+     - dropped the appropriate patch accordingly;
+     - added a backported patch to fix a SEGV with python2.5 on 64-bit arch,
+       from upstream revision r590: 1_SEGV_backported_fix_r590.diff;
+     - added the exec permission to all examples, until upstream fixes it.
+  * Preparation for graphviz 2.12:
+     - added TODO(.Debian) to cover some items needing attention when
+       migrating to graphviz 2.12.
+  * Python egg:
+     - added the --single-version-externally-managed option to
+       DEB_PYTHON_INSTALL_ARGS_ALL so that egg-info directories are installed;
+     - set DEB_PYTHON_SETUP_CMD to setup_egg.py instead of setup.py, so that
+       this option is handled appropriately;
+     - hack a bit with a copy+removal of the egg dirs since python-support
+       seems not to move them on its own;
+     - added a build dependency on python-setuptools and pkg-config
+       accordingly.
+  * Add XS-Vcs-Svn and XS-Vcs-Browser fields in the control file.
+  * Updated lintian override for python2.5.
+  * Adjusted copyright years in debian/copyright.
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Sat, 05 May 2007 17:04:57 +0200
+
+python-pygraphviz (0.33-3) unstable; urgency=low
+
+  * Moved .so file where it belongs (/usr/lib instead of /usr/share), that has
+    nothing to do with byte-compilation.
+  * Adjusted lintian-overrides file accordingly (the RPATH is needed due to
+    #360968, #312533, and #343476).
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Fri, 15 Dec 2006 00:40:08 +0100
+
+python-pygraphviz (0.33-2) unstable; urgency=low
+
+  * Fixed copyright: missing notice (thanks to Joerg Jaspert).
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Sun, 10 Dec 2006 14:35:59 +0100
+
+python-pygraphviz (0.33-1) unstable; urgency=low
+
+  * Initial release (Closes: #397040).
+  * New upstream fixes:
+     - Updated swig interface files and regenerated source codes. There's no
+       copyright issue any longer.
+     - Better error handling.
+     - Documentation updates.
+     - Included the workaround for a broken nop.
+  * Deleted nop workaround (backported patch) since it is now included
+    upstream.
+  * Updated 10_fix_doc_location_and_license_file (context change).
+  * Added a debian/watch file.
+  * Removed silly clean rule (pycompat is now kept).
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Mon, 20 Nov 2006 23:36:43 +0100
+
+python-pygraphviz (0.32-1) UNRELEASED; urgency=low
+
+  * Prospective work, not released due to a licensing problem in a
+    swig-generated file.
+  * Thanks to Einar Ryeng <einarr@pvv.org> for his initial work on the
+    packaging, and to Piotr Ozarowski for his debugging skills.
+  * Included a lintian override:
+     - for the tests/test.py which is not set executable, which is not really
+       a matter anyway;
+     - about the rpath used to workaround the graphviz-dev issue reported in
+       #360968, #312533, and #343476.
+  * Added a patch to workaround the broken `nop' from the graphviz package,
+    since #359870 is not fixed in Debian right now. Taken from the upstream
+    changeset #428: https://networkx.lanl.gov/changeset/428 (thanks to Aric
+    Hagberg).
+
+ -- Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>  Fri,  3 Nov 2006 02:15:11 +0100

@@ -1,0 +1,20 @@
+From dc1fb232af3bbb571ffc41719d1beb56f1e3d8e8 Mon Sep 17 00:00:00 2001
+From: SVN-Git Migration <python-modules-team@lists.alioth.debian.org>
+Date: Thu, 8 Oct 2015 12:46:32 -0700
+Subject: dont_install_data
+
+Patch-Name: dont_install_data.patch
+---
+ setup.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+--- a/setup.py
++++ b/setup.py
+@@ -101,7 +101,6 @@ if __name__ == "__main__":
+         download_url=download_url,
+         classifiers=classifiers,
+         packages=packages,
+-        data_files=data,
+         ext_modules=extension,
+         package_data=package_data,
+         include_package_data=True,
