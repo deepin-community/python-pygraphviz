@@ -1,3 +1,9 @@
+python-pygraphviz (1.7-3deepin1) unstable; urgency=medium
+
+  * No source change upload against python 3.12.
+
+ -- Tianyu Chen <sweetyfish@deepin.org>  Mon, 08 Jul 2024 09:55:50 +0200
+
 python-pygraphviz (1.7-3) unstable; urgency=medium
 
   [ Debian Janitor ]
