@@ -1,6 +1,7 @@
 """
 A Python interface to Graphviz.
 """
+
 import os
 import re
 import shlex
@@ -11,8 +12,10 @@ import warnings
 from collections.abc import MutableMapping
 import tempfile
 import io
+import pathlib
 
 from . import graphviz as gv
+import contextlib
 
 _DEFAULT_ENCODING = "UTF-8"
 
@@ -225,10 +228,21 @@ class AGraph:
         return self.string()
 
     def __repr__(self):
-        name = gv.agnameof(self.handle)
-        if name is None:
+        if self.handle is None:
+            return super().__repr__()
+        if (name := gv.agnameof(self.handle)) is None:
             return f"<AGraph {self.handle}>"
         return f"<AGraph {name} {self.handle}>"
+
+    def _svg_repr(self):
+        return self.draw(format="svg").decode(self.encoding)
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        if self.has_layout:
+            repr_dict = {"image/svg+xml": self._svg_repr()}
+        else:
+            repr_dict = {"text/plain": self.__repr__()}
+        return repr_dict
 
     def __eq__(self, other):
         # two graphs are equal if they have exact same nodes and edges
@@ -877,7 +891,7 @@ class AGraph:
         """Return an iterator over the degree of the nodes given in
         nbunch container.
 
-        Returns paris of (node,degree).
+        Returns pairs of (node,degree).
         """
         for n in self._prepare_nbunch(nbunch):
             yield (Node(self, n), gv.agdegree(self.handle, n.handle, indeg, outdeg))
@@ -886,7 +900,7 @@ class AGraph:
         """Return an iterator over the in-degree of the nodes given in
         nbunch container.
 
-        Returns paris of (node,degree).
+        Returns pairs of (node,degree).
         """
         return self.degree_iter(nbunch, indeg=True, outdeg=False)
 
@@ -894,7 +908,7 @@ class AGraph:
         """Return an iterator over the out-degree of the nodes given in
         nbunch container.
 
-        Returns paris of (node,degree).
+        Returns pairs of (node,degree).
 
         """
         return self.degree_iter(nbunch, indeg=False, outdeg=True)
@@ -911,7 +925,7 @@ class AGraph:
         if with_labels:
             return dict(self.out_degree_iter(nbunch))
         else:
-            dlist = list(d for n, d in self.out_degree_iter(nbunch))
+            dlist = [d for n, d in self.out_degree_iter(nbunch)]
             if nbunch in self:
                 return dlist[0]
             else:
@@ -927,7 +941,7 @@ class AGraph:
         if with_labels:
             return dict(self.in_degree_iter(nbunch))
         else:
-            dlist = list(d for n, d in self.in_degree_iter(nbunch))
+            dlist = [d for n, d in self.in_degree_iter(nbunch)]
             if nbunch in self:
                 return dlist[0]
             else:
@@ -964,7 +978,7 @@ class AGraph:
         if with_labels:
             return dict(self.degree_iter(nbunch))
         else:
-            dlist = list(d for n, d in self.degree_iter(nbunch))
+            dlist = [d for n, d in self.degree_iter(nbunch)]
             if nbunch in self:
                 return dlist[0]
             else:
@@ -1011,11 +1025,13 @@ class AGraph:
         Versions <=1.6 made a copy by writing and the reading a dot string.
         This version loads a new graph with nodes, edges and attributes.
         """
-        G = self.__class__()
+        G = self.__class__(
+            directed=self.is_directed(), strict=self.strict, name=self.name
+        )
         for node in self.nodes():
             G.add_node(node)
             G.get_node(node).attr.update(self.get_node(node).attr)
-        for edge in self.edges():
+        for edge in self.edges(keys=True):
             G.add_edge(*edge)
             G.get_edge(*edge).attr.update(self.get_edge(*edge).attr)
         G.graph_attr.update(self.graph_attr)
@@ -1070,7 +1086,7 @@ class AGraph:
         for n in bunch:
             node = Node(self, n)
             nh = gv.agsubnode(handle, node.handle, _Action.create)
-        for (u, v, k) in self.edges(keys=True):
+        for u, v, k in self.edges(keys=True):
             if u in H and v in H:
                 edge = Edge(self, u, v, k)
                 eh = gv.agsubedge(handle, edge.handle, _Action.create)
@@ -1148,28 +1164,19 @@ class AGraph:
 
         Strict graphs do not allow parallel edges or self loops.
         """
-        if gv.agisstrict(self.handle) == 1:
-            return True
-        else:
-            return False
+        return gv.agisstrict(self.handle) == 1
 
     strict = property(is_strict)
 
     def is_directed(self):
         """Return True if graph is directed or False if not."""
-        if gv.agisdirected(self.handle) == 1:
-            return True
-        else:
-            return False
+        return gv.agisdirected(self.handle) == 1
 
     directed = property(is_directed)
 
     def is_undirected(self):
         """Return True if graph is undirected or False if not."""
-        if gv.agisundirected(self.handle) == 1:
-            return True
-        else:
-            return False
+        return gv.agisundirected(self.handle) == 1
 
     def to_undirected(self):
         """Return undirected copy of graph."""
@@ -1227,7 +1234,7 @@ class AGraph:
 
         use::
 
-           G.read('file.dot')
+           G.read("file.dot")
 
         """
         fh = self._get_fh(path)
@@ -1242,6 +1249,9 @@ class AGraph:
                 self._update_handle_references()
         except OSError:
             print("IO error reading file")
+        finally:
+            if hasattr(fh, "close") and not hasattr(path, "write"):
+                fh.close()
 
     def write(self, path=None):
         """Write graph in dot format to file on path.
@@ -1250,13 +1260,13 @@ class AGraph:
 
         use::
 
-           G.write('file.dot')
+           G.write("file.dot")
         """
         if path is None:
             path = sys.stdout
         fh = self._get_fh(path, "w")
         # NOTE: TemporaryFile objects are not instances of IOBase on windows.
-        if not isinstance(fh, (io.IOBase, tempfile._TemporaryFileWrapper)):
+        if not isinstance(fh, io.IOBase | tempfile._TemporaryFileWrapper):
             raise TypeError(f"{fh} is not a file handle")
         try:
             gv.agwrite(self.handle, fh)
@@ -1305,29 +1315,28 @@ class AGraph:
         >>> A = pgv.AGraph(s)  # s assumed to be a string during initialization
         """
         # allow either unicode or encoded string
-        try:
+        with contextlib.suppress(UnicodeEncodeError, AttributeError):
             string = string.decode(self.encoding)
-        except (UnicodeEncodeError, AttributeError):
-            pass
         from tempfile import TemporaryFile
 
-        fh = TemporaryFile()
-        fh.write(string.encode(self.encoding))
-        fh.seek(0)
-        self.read(fh)
-        fh.close()
+        with TemporaryFile() as fh:
+            fh.write(string.encode(self.encoding))
+            fh.seek(0)
+            self.read(fh)
         return self
 
     def _get_prog(self, prog):
         # private: get path of graphviz program
-        progs = [
+        progs = {
             "neato",
             "dot",
             "twopi",
             "circo",
             "fdp",
             "nop",
-            "wc",
+            "osage",
+            "patchwork",
+            "gc",
             "acyclic",
             "gvpr",
             "gvcolor",
@@ -1336,7 +1345,7 @@ class AGraph:
             "tred",
             "sfdp",
             "unflatten",
-        ]
+        }
         if prog not in progs:
             raise ValueError(f"Program {prog} is not one of: {', '.join(progs)}.")
 
@@ -1357,9 +1366,12 @@ class AGraph:
 
         Use keyword args to add additional arguments to graphviz programs.
         """
-        runprog = r'"%s"' % self._get_prog(prog)
+        runprog = rf'"{self._get_prog(prog)}"'
         cmd = " ".join([runprog, args])
         dotargs = shlex.split(cmd)
+        popen_kwargs = {}
+        if hasattr(subprocess, "CREATE_NO_WINDOW"):  # Only on Windows OS
+            popen_kwargs.update(creationflags=subprocess.CREATE_NO_WINDOW)
         p = subprocess.Popen(
             dotargs,
             shell=False,
@@ -1367,6 +1379,7 @@ class AGraph:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             close_fds=False,
+            **popen_kwargs,
         )
         (child_stdin, child_stdout, child_stderr) = (p.stdin, p.stdout, p.stderr)
         # Use threading to avoid blocking
@@ -1503,7 +1516,7 @@ class AGraph:
 
         gvc = gv.gvContext()
         gv.gvLayout(gvc, self.handle, prog)
-        gv.gvRender(gvc, self.handle, format=b"dot", out=None)
+        gv.gvRender(gvc, self.handle, format=b"dot", output_file=None)
 
         gv.gvFreeLayout(gvc, self.handle)
         gv.gvFreeContext(gvc)
@@ -1576,16 +1589,15 @@ class AGraph:
                 prog = "neato"
                 args += "-n2"
             else:
-                raise AttributeError(
-                    "Graph has no layout information, see layout() or specify prog=%s."
-                    % ("|".join(["neato", "dot", "twopi", "circo", "fdp", "nop"]))
+                msg = "Graph has no layout information, see layout() or specify prog={}.".format(
+                    "|".join(["neato", "dot", "twopi", "circo", "fdp", "nop"])
                 )
+                raise AttributeError(msg)
 
         else:
             if self.number_of_nodes() > 1000:
                 sys.stderr.write(
-                    "Warning: graph has %s nodes...layout may take a long time.\n"
-                    % self.number_of_nodes()
+                    f"Warning: graph has {self.number_of_nodes()} nodes...layout may take a long time.\n"
                 )
 
         if prog == "nop":  # nop takes no switches
@@ -1598,7 +1610,7 @@ class AGraph:
         if path is not None:
             fh = self._get_fh(path, "w+b")
             fh.write(data)
-            if isinstance(path, str):
+            if isinstance(path, str | pathlib.Path):
                 fh.close()
             d = None
         else:
@@ -1675,16 +1687,15 @@ class AGraph:
                 prog = "neato"
                 args += " -n2"
             else:
-                raise AttributeError(
-                    """Graph has no layout information, see layout() or specify prog=%s."""
-                    % ("|".join(["neato", "dot", "twopi", "circo", "fdp", "nop"]))
+                msg = """Graph has no layout information, see layout() or specify prog={}.""".format(
+                    "|".join(["neato", "dot", "twopi", "circo", "fdp", "nop"])
                 )
+                raise AttributeError(msg)
 
         else:
             if self.number_of_nodes() > 1000:
                 sys.stderr.write(
-                    "Warning: graph has %s nodes...layout may take a long time.\n"
-                    % self.number_of_nodes()
+                    f"Warning: graph has {self.number_of_nodes()} nodes...layout may take a long time.\n"
                 )
 
         # process args
@@ -1713,8 +1724,7 @@ class AGraph:
             out = gv.gvRenderData(gvc, G, format)
             if out[0]:
                 raise ValueError(f"Graphviz Error creating dot representation:{out[0]}")
-            err, dot_string, length = out
-            assert len(dot_string) == length
+            err, dot_string = out
             gv.gvFreeLayout(gvc, G)
             gv.gvFreeContext(gvc)
             return dot_string
@@ -2022,7 +2032,7 @@ class Attribute(MutableMapping):
         return list(self.__iter__())
 
     def __iter__(self):
-        for (k, v) in self.iteritems():
+        for k, v in self.iteritems():
             yield k
 
     def iteritems(self):
@@ -2076,10 +2086,7 @@ class ItemAttribute(Attribute):
     def __setitem__(self, name, value):
         if not isinstance(value, str):
             value = str(value)
-        if self.type == 1 and name == "label":
-            default = "\\N"
-        else:
-            default = ""
+        default = "\\N" if self.type == 1 and name == "label" else ""
         gv.agsafeset_label(
             self.ghandle,
             self.handle,

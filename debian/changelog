@@ -1,8 +1,37 @@
-python-pygraphviz (1.7-3deepin1) unstable; urgency=medium
+python-pygraphviz (1.14-1) unstable; urgency=medium
 
-  * No source change upload against python 3.12.
+  * New upstream version 1.14
 
- -- Tianyu Chen <sweetyfish@deepin.org>  Mon, 08 Jul 2024 09:55:50 +0200
+ -- Alexandre Detiste <tchet@debian.org>  Wed, 06 Nov 2024 20:20:51 +0100
+
+python-pygraphviz (1.13-1) unstable; urgency=medium
+
+  * New upstream version
+  * Reduce build dependencies (Closes: #949462)
+  * Standards-Version: 4.7.0 (routine-update)
+  * Testsuite: autopkgtest-pkg-python (routine-update)
+
+ -- Alexandre Detiste <tchet@debian.org>  Tue, 04 Jun 2024 21:40:16 +0200
+
+python-pygraphviz (1.12-1) unstable; urgency=medium
+
+  * Adopt package (Closes: #1065229)
+  * update watch file for new GitHub API (Closes: #1064471)
+  * New upstream version 1.12
+  * add d/clean (Closes: #1047451)
+  * set Rules-Requires-Root: no
+  * update build dependencies:
+    * use new dh-sequence-python3
+    * replace pkg-config by pkgconf
+    * remove obsolete python3-mock
+
+ -- Alexandre Detiste <tchet@debian.org>  Sun, 10 Mar 2024 20:23:05 +0100
+
+python-pygraphviz (1.7-4) unstable; urgency=medium
+
+  * orphan
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 02 Mar 2024 00:24:34 -0500
 
 python-pygraphviz (1.7-3) unstable; urgency=medium
 

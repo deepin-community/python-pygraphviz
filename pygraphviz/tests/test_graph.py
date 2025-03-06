@@ -138,7 +138,7 @@ class TestGraph(unittest.TestCase):
         assert hash(A) != hash(B)
 
     def test_iter(self):
-        assert sorted(list(self.P3.__iter__())) == ["1", "2", "3"]
+        assert sorted(self.P3.__iter__()) == ["1", "2", "3"]
         assert sorted(self.P3) == ["1", "2", "3"]
 
     def test_contains(self):
@@ -213,13 +213,13 @@ class TestGraph(unittest.TestCase):
         e = (2, 3)
         A.add_edge(e)
         edges = [("1", "2"), ("2", "3")]
-        assert sorted([tuple(sorted(e)) for e in A.edges()]) == edges
+        assert sorted(tuple(sorted(e)) for e in A.edges()) == edges
 
     def test_add_remove_edges_from(self):
         A = pgv.AGraph()
         A.add_edges_from([(1, 2), (2, 3)])
         edges = [("1", "2"), ("2", "3")]
-        assert sorted([tuple(sorted(e)) for e in A.edges()]) == edges
+        assert sorted(tuple(sorted(e)) for e in A.edges()) == edges
 
         A.remove_edge(1, 2)
         assert sorted(A.edges()) == [("2", "3")]
@@ -233,7 +233,7 @@ class TestGraph(unittest.TestCase):
         A = pgv.AGraph()
         A.add_edges_from([(1, 2), (2, 3)])
         edges = [("1", "2"), ("2", "3")]
-        assert sorted([tuple(sorted(e)) for e in A.edges()]) == edges
+        assert sorted(tuple(sorted(e)) for e in A.edges()) == edges
         A.remove_edges_from([(1, 2), (2, 3)])
         assert A.edges() == []
 
@@ -241,9 +241,9 @@ class TestGraph(unittest.TestCase):
         A = pgv.AGraph()
         A.add_edges_from([(1, 2), (2, 3)])
         edges = [("1", "2"), ("2", "3")]
-        assert sorted([tuple(sorted(e)) for e in A.edges()]) == edges
-        assert sorted([tuple(sorted(e)) for e in A.edges_iter()]) == edges
-        assert sorted([tuple(sorted(e)) for e in A.iteredges()]) == edges
+        assert sorted(tuple(sorted(e)) for e in A.edges()) == edges
+        assert sorted(tuple(sorted(e)) for e in A.edges_iter()) == edges
+        assert sorted(tuple(sorted(e)) for e in A.iteredges()) == edges
 
     def test_has_edge(self):
         assert self.P3.has_edge(1, 2)
@@ -294,6 +294,39 @@ class TestGraph(unittest.TestCase):
         assert stringify(A) == stringify(self.P3)
         assert A == self.P3
 
+        # see Github Issue #354: G.copy() doesn't return a faithful copy
+        DG = pgv.AGraph(directed=True)
+        DG.add_edge(1, 2)
+        DG_copy = DG.copy()
+        assert DG_copy.is_directed()
+        G = pgv.AGraph()
+        G.add_edge(1, 2)
+        G_copy = G.copy()
+        assert not G_copy.is_directed()
+
+        # Similarly with the strict and name attrs when copying: see gh-426
+        A = pgv.AGraph(strict=False, directed=True, name="foobar")
+        AC = A.copy()
+        assert AC.strict == A.strict
+        assert AC.name == A.name
+
+    def test_multigraph_copy_with_keys(self):
+        A = pgv.AGraph(strict=False)
+        # Add parallel edges
+        A.add_edge(1, 2, key="1_2-1")
+        A.add_edge(1, 2, key="1_2-2")
+        # Add single edge
+        A.add_edge(3, 4, key="3_4-1")
+
+        AC = A.copy()
+
+        # Sanity - verify keys exist in original graph
+        assert all(key is not None for key in A.edges(keys=True))
+        # Verify all edges in copied graph have edges
+        assert all(key is not None for key in AC.edges(keys=True))
+        # Verify edges, including keys, are identical to original graph
+        assert set(A.edges(keys=True)) == set(AC.edges(keys=True))
+
     def test_add_path(self):
         A = pgv.AGraph()
         A.add_path([1, 2, 3])
@@ -304,7 +337,7 @@ class TestGraph(unittest.TestCase):
         A.add_cycle([1, 2, 3])
         assert A.nodes() == ["1", "2", "3"]
         edges = [("1", "2"), ("1", "3"), ("2", "3")]
-        assert sorted([tuple(sorted(e)) for e in A.iteredges()]) == edges
+        assert sorted(tuple(sorted(e)) for e in A.iteredges()) == edges
 
     def test_graph_strict(self):
         A = pgv.AGraph()
@@ -357,12 +390,12 @@ class TestDiGraphOnly(TestGraph):
         A = pgv.AGraph(directed=True)
         A.add_edges_from(self.P3.edges())
         edges = [("1", "2"), ("2", "3")]
-        assert sorted([tuple(sorted(e)) for e in A.edges()]) == edges
-        assert sorted([tuple(sorted(e)) for e in A.edges_iter()]) == edges
-        assert sorted([tuple(sorted(e)) for e in A.out_edges()]) == edges
-        assert sorted([tuple(sorted(e)) for e in A.out_edges_iter()]) == edges
-        assert sorted([tuple(sorted(e)) for e in A.in_edges()]) == edges
-        assert sorted([tuple(sorted(e)) for e in A.in_edges_iter()]) == edges
+        assert sorted(tuple(sorted(e)) for e in A.edges()) == edges
+        assert sorted(tuple(sorted(e)) for e in A.edges_iter()) == edges
+        assert sorted(tuple(sorted(e)) for e in A.out_edges()) == edges
+        assert sorted(tuple(sorted(e)) for e in A.out_edges_iter()) == edges
+        assert sorted(tuple(sorted(e)) for e in A.in_edges()) == edges
+        assert sorted(tuple(sorted(e)) for e in A.in_edges_iter()) == edges
         assert sorted(A.edges(1)) == [("1", "2")]
         assert sorted(A.edges([1, 2])) == [("1", "2"), ("2", "3")]
         assert sorted(A.edges_iter(1)) == [("1", "2")]
@@ -487,3 +520,10 @@ def test_agraph_has_edge_single_input_parsing():
     A = pgv.AGraph({0: [1], 1: [0, 2], 2: [1]})
     assert A.has_edge((0, 1))
     assert not A.has_edge((0, 3))
+
+
+def test_repr_on_incomplete_initialization():
+    """Smoke test to ensure no segfaults from accessing uninitialized attributes
+    in __repr__ when object initialization fails. See gh-519."""
+    with pytest.raises(TypeError, match="Unrecognized input"):
+        A = pgv.AGraph(object())
