@@ -66,6 +66,7 @@ License: GPL
 
 Files: examples/miles_dat.txt.gz
 License: BSD-3-Clause
+Copyright: 1993 Stanford University
 Comment:
  This file miles_dat.txt is part of PyGraphviz and is distributed
  with the same license as PyGraphviz.
@@ -77,7 +78,3 @@ Comment:
  Revised mileage data for highways in the United States and Canada, 1949
  This file may be freely copied but please do not change it in any way!
  (Checksum parameters 696,295999341)
-
-Files: doc/source/static/sphinxdoc.css
-Copyright: Copyright 2007-2010 by the Sphinx team
-License: BSD

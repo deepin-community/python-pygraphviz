@@ -1,11 +1,31 @@
 %module graphviz
 
+%begin %{
+#define SWIG_PYTHON_STRICT_BYTE_CHAR
+%}
+
 %{
 #include "graphviz/cgraph.h"
 #include "graphviz/gvc.h"
 %}
 
-%typemap(in) FILE* (int fd, PyObject *mode_obj, PyObject *mode_byte_obj, char *mode) {
+%typemap(in) FILE* input_file (int fd, PyObject *mode_obj, PyObject *mode_byte_obj, char *mode) {
+    if ($input == Py_None) { $1 = NULL; }
+    else {
+        // work around to get hold of FILE*
+        fd = PyObject_AsFileDescriptor($input);
+
+        mode_obj = PyObject_GetAttrString($input, "mode");
+        mode_byte_obj = PyUnicode_AsUTF8String(mode_obj);
+
+        mode = PyBytes_AsString(mode_byte_obj);
+        $1 = fdopen(dup(fd), mode);
+        Py_XDECREF(mode_obj);
+        Py_XDECREF(mode_byte_obj);
+    }
+}
+
+%typemap(in) FILE* output_file (int fd, PyObject *mode_obj, PyObject *mode_byte_obj, char *mode) {
     if ($input == Py_None) { $1 = NULL; }
     else {
         // work around to get hold of FILE*
@@ -19,6 +39,10 @@
         Py_XDECREF(mode_obj);
         Py_XDECREF(mode_byte_obj);
     }
+}
+
+%typemap(freearg) FILE* input_file {
+    fclose($1);
 }
 
 
@@ -45,7 +69,7 @@
      PyErr_SetString(PyExc_KeyError,"agset: no key");
      return NULL;
   }
-} 
+}
 
 /* agsetsafeset_label returns -1 on error */
 %exception agsafeset_label {
@@ -54,7 +78,7 @@
      PyErr_SetString(PyExc_KeyError,"agsafeset_label: Error");
      return NULL;
   }
-} 
+}
 
 
 /* agdelnode returns -1 on error */
@@ -114,13 +138,13 @@ def agraphnew(name,strict=False,directed=False):
     else:
         if directed:
             return _graphviz.agopen(name,cvar.Agdirected,None)
-        else:		 
+        else:
             return _graphviz.agopen(name,cvar.Agundirected,None)
 %}
 
 int       agclose(Agraph_t *g);
-Agraph_t *agread(FILE *file, Agdisc_t *);
-int       agwrite(Agraph_t *g, FILE *file);
+Agraph_t *agread(FILE *input_file, Agdisc_t *);
+int       agwrite(Agraph_t *g, FILE *output_file);
 int	  agisundirected(Agraph_t * g);
 int       agisdirected(Agraph_t * g);
 int       agisstrict(Agraph_t * g);
@@ -130,15 +154,15 @@ int       agisstrict(Agraph_t * g);
 
 /* nodes */
 Agnode_t *agnode(Agraph_t *g, char *name, int createflag);
-Agnode_t *agidnode(Agraph_t * g, unsigned long id, int createflag); 
+Agnode_t *agidnode(Agraph_t * g, unsigned long id, int createflag);
 Agnode_t *agsubnode(Agraph_t *g, Agnode_t *n, int createflag);
 Agnode_t *agfstnode(Agraph_t *g);
 Agnode_t *agnxtnode(Agraph_t *g, Agnode_t *n);
-Agnode_t *aglstnode(Agraph_t * g); 
-Agnode_t *agprvnode(Agraph_t * g, Agnode_t * n); 
+Agnode_t *aglstnode(Agraph_t * g);
+Agnode_t *agprvnode(Agraph_t * g, Agnode_t * n);
 /* Agsubnode_t *agsubrep(Agraph_t * g, Agnode_t * n); */
 
-/* edges */ 
+/* edges */
 
 Agedge_t *agedge(Agraph_t * g, Agnode_t * t, Agnode_t * h,
  		char *name, int createflag);
@@ -167,7 +191,7 @@ int      agxset(void *obj, Agsym_t *sym, char *value);
 int      agsafeset(void *obj, char *name, char *value, char *def);
 
 %inline %{
-  char *agattrname(Agsym_t *atsym) {	
+  char *agattrname(Agsym_t *atsym) {
     return atsym->name;
   }
   %}
@@ -226,9 +250,9 @@ int      agsafeset(void *obj, char *name, char *value, char *def);
 
 /* subgraphs */
 Agraph_t *agsubg(Agraph_t *g, char *name, int createflag);
-Agraph_t *agfstsubg(Agraph_t *g); 
+Agraph_t *agfstsubg(Agraph_t *g);
 Agraph_t *agnxtsubg(Agraph_t *subg);
-Agraph_t *agparent(Agraph_t *g);  
+Agraph_t *agparent(Agraph_t *g);
 Agraph_t *agroot(Agraph_t *g);
 /* Agedge_t *agsubedge(Agraph_t *g, Agedge_t *e, int createflag); */
 long      agdelsubg(Agraph_t *g, Agraph_t *sub);
@@ -258,7 +282,7 @@ def agnameof(handle):
   if name==b'' or name.startswith(b'%'):
     return None
   else:
-    return name 
+    return name
 %}
 
 
@@ -303,7 +327,7 @@ int gvLayout(GVC_t *gvc, Agraph_t *g, char* prog);
 int gvFreeLayout(GVC_t *gvc, Agraph_t *g);
 
 /* Render layout in a specified format to an open FILE */
-int gvRender(GVC_t *gvc, Agraph_t* g, char *format, FILE *out=NULL);
+int gvRender(GVC_t *gvc, Agraph_t* g, char *format, FILE *output_file=NULL);
 int gvRenderFilename(GVC_t *gvc, Agraph_t* g, char *format, char *filename);
 
 /* Render layout in a specified format to an external context */
@@ -314,8 +338,7 @@ int gvRenderFilename(GVC_t *gvc, Agraph_t* g, char *format, char *filename);
 /* three lines are straight from the SWIG manual.  */
 %include <cstring.i>
 %include <typemaps.i>
-%cstring_output_allocate(char **result, free(*$1)); 
-int gvRenderData(GVC_t *gvc, Agraph_t* g, char *format, char **result, unsigned int *OUTPUT);
+%cstring_output_allocate_size(char **result, unsigned int* size, free(*$1));
+int gvRenderData(GVC_t *gvc, Agraph_t* g, char *format, char **result, unsigned int *size);
 /* Free memory allocated and pointed to by *result in gvRenderData */
 extern void gvFreeRenderData (char* data);
-
